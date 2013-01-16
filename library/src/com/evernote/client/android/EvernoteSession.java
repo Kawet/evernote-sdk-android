@@ -25,6 +25,8 @@
  */
 package com.evernote.client.android;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,9 +39,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import com.evernote.client.oauth.EvernoteAuthToken;
 
-import java.util.Locale;
+import com.evernote.client.oauth.EvernoteAuthToken;
 
 /**
  * Represents a session with the Evernote web service API. Used to authenticate
@@ -157,9 +158,7 @@ public class EvernoteSession {
     }
     return sInstance;
   }
-
-
-
+  
   /**
    * Used to access the initialized EvernoteSession singleton instance.
    *
@@ -196,7 +195,7 @@ public class EvernoteSession {
     mClientFactory = new ClientFactory(generateUserAgentString(ctx), ctx.getFilesDir());
     mBootstrapManager = new BootstrapManager(mEvernoteService, mClientFactory);
   }
-
+  
   /**
    *
    * @return the Bootstrap object to check for server host urls
@@ -204,7 +203,7 @@ public class EvernoteSession {
   protected BootstrapManager getBootstrapSession() {
     return mBootstrapManager;
   }
-
+  
   /**
    * Use this to create {@link AsyncNoteStoreClient} and {@link AsyncUserStoreClient}
    */
@@ -367,5 +366,47 @@ public class EvernoteSession {
     CookieSyncManager.createInstance(ctx);
     CookieManager cookieManager = CookieManager.getInstance();
     cookieManager.removeAllCookie();
+  }
+  	
+  // KAWET AUTH
+  public static EvernoteSession initKawet(Context ctx, String consumerKey, String consumerSecret, EvernoteService evernoteService, AuthData authData) 
+  {
+	sInstance = new EvernoteSession(ctx, consumerKey, consumerSecret, evernoteService, authData);
+	return sInstance;
+  }
+  
+  private EvernoteSession(Context ctx, String consumerKey, String consumerSecret, EvernoteService evernoteService, AuthData authData) 
+  {
+	mConsumerKey = consumerKey;
+    mConsumerSecret = consumerSecret;
+    mEvernoteService = evernoteService;
+    mAuthenticationResult = getAuthenticationResultKawet(authData, evernoteService);
+    mClientFactory = new ClientFactory(generateUserAgentString(ctx), ctx.getFilesDir());
+	mBootstrapManager = new BootstrapManager(mEvernoteService, mClientFactory);
+  }
+  
+  private AuthenticationResult getAuthenticationResultKawet(AuthData authData, EvernoteService evernoteService)
+  {
+    String authToken = authData.authToken;
+    String notestoreUrl = authData.noteStoreUrl;
+    String webApiUrlPrefix = authData.webApiUrlPrefix;
+    int userId = authData.UserId;
+
+    if (TextUtils.isEmpty(authToken) ||
+        TextUtils.isEmpty(notestoreUrl) ||
+        TextUtils.isEmpty(webApiUrlPrefix) ||
+        userId == -1) {
+      return null;
+    }
+    String evernoteHost = evernoteService == EvernoteService.PRODUCTION ? HOST_PRODUCTION : HOST_SANDBOX;
+    return new AuthenticationResult(authToken, notestoreUrl, webApiUrlPrefix, evernoteHost, userId);
+  }
+  
+  public static class AuthData
+  {
+	 public String	authToken		= "";
+	 public String	noteStoreUrl	= "";
+	 public String	webApiUrlPrefix	= "";
+	 public int		UserId			= -1;
   }
 }
