@@ -8,9 +8,9 @@ target
 out
 
 #Eclipse
-.project
-.classpath
-.settings
+#.project
+#.classpath
+#.settings
 
 #IntelliJ IDEA
 .idea
@@ -24,6 +24,6 @@ pom.xml.*
 gen-external-apklibs
 
 #Command line
-local.properties
-build.xml
-proguard-project.txt
+#local.properties
+#build.xml
+#proguard-project.txt
