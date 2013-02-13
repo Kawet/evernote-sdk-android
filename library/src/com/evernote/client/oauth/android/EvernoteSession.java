@@ -25,6 +25,9 @@
  */
 package com.evernote.client.oauth.android;
 
+import java.io.File;
+import java.util.Locale;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -44,9 +47,6 @@ import com.evernote.edam.notestore.NoteStore;
 import com.evernote.edam.userstore.UserStore;
 import com.evernote.thrift.protocol.TBinaryProtocol;
 import com.evernote.thrift.transport.TTransportException;
-
-import java.io.File;
-import java.util.Locale;
 
 /**
  * Represents a session with the Evernote web service API. Used to authenticate
@@ -138,7 +138,7 @@ public class EvernoteSession {
     }
     return sInstance;
   }
-
+  
   /**
    * Used to access the initialized EvernoteSession singleton instance.
    *
@@ -166,7 +166,7 @@ public class EvernoteSession {
       mDataDirectory = ctx.getFilesDir();
     }
   }
-
+  
   /**
    * Restore an AuthenticationResult from shared preferences.
    * @return The restored AuthenticationResult, or null if the preferences
@@ -186,7 +186,7 @@ public class EvernoteSession {
     }
     return new AuthenticationResult(authToken, notestoreUrl, webApiUrlPrefix, userId);
   }
-
+  
   /**
    * Check whether the session has valid authentication information
    * that will allow successful API calls to be made.
@@ -391,5 +391,47 @@ public class EvernoteSession {
             authToken.getWebApiUrlPrefix(),
             authToken.getUserId());
     return true;
+  }
+  	
+  // KAWET AUTH
+  public static EvernoteSession initKawet(Context ctx, String consumerKey, String consumerSecret, String evernoteHost, AuthData authData) 
+  {
+	//if (sInstance == null) 
+	sInstance = new EvernoteSession(ctx, consumerKey, consumerSecret, evernoteHost, authData);
+	return sInstance;
+  }
+  
+  private EvernoteSession(Context ctx, String consumerKey, String consumerSecret, String evernoteHost, AuthData authData) 
+  {
+	mConsumerKey = consumerKey;
+	mConsumerSecret = consumerSecret;
+	mEvernoteHost = evernoteHost;
+	initUserAgentString(ctx);
+	this.mAuthenticationResult = getAuthenticationResultKawet(authData);
+	mDataDirectory = ctx.getFilesDir();
+  }
+  
+  private AuthenticationResult getAuthenticationResultKawet(AuthData authData)
+  {
+    String authToken = authData.authToken;
+    String notestoreUrl = authData.noteStoreUrl;
+    String webApiUrlPrefix = authData.webApiUrlPrefix;
+    int userId = authData.UserId;
+
+    if (TextUtils.isEmpty(authToken) ||
+        TextUtils.isEmpty(notestoreUrl) ||
+        TextUtils.isEmpty(webApiUrlPrefix) ||
+        userId == -1) {
+      return null;
+    }
+    return new AuthenticationResult(authToken, notestoreUrl, webApiUrlPrefix, userId);
+  }
+  
+  public static class AuthData
+  {
+	 public String	authToken		= "";
+	 public String	noteStoreUrl	= "";
+	 public String	webApiUrlPrefix	= "";
+	 public int		UserId			= -1;
   }
 }
