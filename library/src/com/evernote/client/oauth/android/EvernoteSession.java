@@ -396,7 +396,6 @@ public class EvernoteSession {
   // KAWET AUTH
   public static EvernoteSession initKawet(Context ctx, String consumerKey, String consumerSecret, String evernoteHost, AuthData authData) 
   {
-	//if (sInstance == null) 
 	sInstance = new EvernoteSession(ctx, consumerKey, consumerSecret, evernoteHost, authData);
 	return sInstance;
   }
