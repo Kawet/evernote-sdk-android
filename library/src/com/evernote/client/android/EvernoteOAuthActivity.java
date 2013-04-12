@@ -25,10 +25,19 @@
  */
 package com.evernote.client.android;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
+import org.scribe.builder.ServiceBuilder;
+import org.scribe.builder.api.EvernoteApi;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
+import org.scribe.oauth.OAuthService;
+
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -44,18 +53,13 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
 import com.evernote.androidsdk.R;
 import com.evernote.client.oauth.EvernoteAuthToken;
 import com.evernote.client.oauth.YinxiangApi;
 import com.evernote.edam.userstore.BootstrapInfo;
 import com.evernote.edam.userstore.BootstrapProfile;
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.builder.api.EvernoteApi;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
-import org.scribe.oauth.OAuthService;
-
-import java.util.ArrayList;
+import com.good.gd.Activity;
 
 /**
  * An Android Activity for authenticating to Evernote using OAuth.
@@ -126,10 +130,45 @@ public class EvernoteOAuthActivity extends Activity {
   };
 
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @SuppressLint("SetJavaScriptEnabled")
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    if (this.isFinishing()) 
+	{
+    	// In the case where the application is unloaded with some
+    	// activities in the stack the GD library will automatically
+    	// finish() this activity in super.onCreate.
+    	;
+		try
+		{
+			Class securedLauncActivtyClass = Class.forName("com.madebykawet.cashew.gooddynamics.SecuredLaunchActivity");
+			securedLauncActivtyClass.getDeclaredMethod("doAuthorization", Context.class).invoke(null, this);
+		}
+		catch (ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IllegalArgumentException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+		catch (InvocationTargetException e)
+		{
+			e.printStackTrace();
+		}
+		catch (NoSuchMethodException e)
+		{
+			e.printStackTrace();
+		}
+    	//SecuredLaunchActivity.doAuthorization(this);
+    	return;
+	}
 
     //Show web loading progress
     getWindow().requestFeature(Window.FEATURE_PROGRESS);
@@ -405,7 +444,8 @@ public class EvernoteOAuthActivity extends Activity {
      * Open a WebView to allow the user to authorize access to their account.
      * @param url The URL of the OAuth authorization web page.
      */
-    @Override
+    @SuppressLint("NewApi")
+	@Override
     protected void onPostExecute(String url) {
       // TODO deprecated
       removeDialog(DIALOG_PROGRESS);
