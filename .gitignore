@@ -27,3 +27,6 @@ gen-external-apklibs
 #local.properties
 #build.xml
 #proguard-project.txt
+
+#Crashlytics
+library/res/values/com_crashlytics_export_strings.xml
